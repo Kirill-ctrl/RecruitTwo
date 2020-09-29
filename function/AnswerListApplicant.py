@@ -19,7 +19,7 @@ def sort_ans_list(list_tuple) -> list:
     return list_dict
 
 
-def get_list_answer_applicant(token: str, email: str, app) -> list or str:
+def get_list_answer_applicant(token: str, email: str, app, pagination_result, pagination_after) -> list or str:
     """Получаем список ответов соискателя"""
     if get_authorization(token):
         status = get_status(token)
@@ -32,9 +32,12 @@ def get_list_answer_applicant(token: str, email: str, app) -> list or str:
 
             ans = Answer1()
             ans.give_applicant_id(applicant_id)
-            list_tuple = ans.get_answer_list()
+            list_tuple = ans.get_answer_list(pagination_result, pagination_after)
+            if list_tuple:
 
-            data = sort_ans_list(list_tuple)
-            return information_output(app, data)
+                data = sort_ans_list(list_tuple)
+                return information_output(app, data)
+            else:
+                return "Page Not Found"
     else:
         return not_authorized()

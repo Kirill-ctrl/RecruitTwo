@@ -13,14 +13,17 @@ def convert_employer(list_tuple: list) -> list:
     return list_dict
 
 
-def get_inf_employer(token: str, app) -> list or str:
+def get_inf_employer(token: str, app, pagination_result: str, pagination_after: str) -> list or str:
     """Получаем список работодателей"""
     if get_authorization(token):
         status = get_status(token)
         if check_status_applicant(status):
-            list_tuple = Employer().get_employer_list()
-            data = convert_employer(list_tuple)
-            return information_output(app, data)
+            list_tuple = Employer().get_employer_list(pagination_result, pagination_after)
+            if list_tuple:
+                data = convert_employer(list_tuple)
+                return information_output(app, data)
+            else:
+                return "Page Not Found"
         else:
             return access_denied()
     else:

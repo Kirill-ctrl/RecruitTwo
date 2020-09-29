@@ -18,7 +18,7 @@ def convert_dict(code: int, list_id_text_questions: list):
     return beautiful_text_question
 
 
-def get_questions(token: str, app) -> list or str:
+def get_questions(token: str, app, pagination_result, pagination_after) -> list or str:
     """Получаем случайные вопросы"""
     if get_authorization(token):
         status = get_status(token)
@@ -27,10 +27,13 @@ def get_questions(token: str, app) -> list or str:
             question_list = QuestionList()
             random_id = question_list.rand()
             question.give_random_id(random_id)
-            list_id_text_questions = question.choice_question()
-            code = question_list.choice_code(random_id)
-            data = convert_dict(code, list_id_text_questions)
-            return information_output(app, data)
+            list_id_text_questions = question.choice_question(pagination_result, pagination_after)
+            if list_id_text_questions:
+                code = question_list.choice_code(random_id)
+                data = convert_dict(code, list_id_text_questions)
+                return information_output(app, data)
+            else:
+                return 'Page Not Found'
         else:
             return access_denied()
     else:

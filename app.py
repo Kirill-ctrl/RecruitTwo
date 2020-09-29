@@ -10,27 +10,40 @@ from function.Authentication import auth
 from function.LogOut import log_out
 from UsedClass.Validate import ValidateRegistration, ValidateAuthorization, ValidateAnswerApplicant
 from marshmallow import ValidationError
+import pickle
+from PIL import Image
+from struct import *
+from ctypes import *
+import os
+from Connect import connecting
+from UsedClass.UsersClass import Users
+from function.picture import photo
 
 app = Flask(__name__)
-
 
 
 @app.route('/applicant')
 def applicant():
     token = request.headers['Token']
-    return get_inf_applicant(token, app)
+    pagination_result = request.args.get('pagination_result')
+    pagination_after = request.args.get('pagination_after')
+    return get_inf_applicant(token, app, pagination_result, pagination_after)
 
 
 @app.route('/employer')
 def employer():
     token = request.headers['Token']
-    return get_inf_employer(token, app)
+    pagination_result = request.args.get('pagination_result')
+    pagination_after = request.args.get('pagination_after')
+    return get_inf_employer(token, app, pagination_result, pagination_after)
 
 
 @app.route('/quest')
 def quest():
     token = request.headers['Token']
-    return get_questions(token, app)
+    pagination_result = request.args.get('pagination_result')
+    pagination_after = request.args.get('pagination_after')
+    return get_questions(token, app, pagination_result, pagination_after)
 
 
 @app.route('/answer/<question_id>', methods=['POST'])
@@ -51,14 +64,18 @@ def answer(question_id: int):
 @app.route("/list")
 def get_list():
     token = request.headers['Token']
-    return get_applicant_list_for_employer(token, app)
+    pagination_result = request.args.get('pagination_result')
+    pagination_after = request.args.get('pagination_after')
+    return get_applicant_list_for_employer(token, app, pagination_result, pagination_after)
 
 
 @app.route('/answer_list')
 def answer_list():
     token = request.headers['Token']
     email = request.headers['Email']
-    return get_list_answer_applicant(token, email, app)
+    pagination_result = request.args.get('pagination_result')
+    pagination_after = request.args.get('pagination_after')
+    return get_list_answer_applicant(token, email, app, pagination_result, pagination_after)
 
 
 @app.route('/accept')
@@ -93,6 +110,21 @@ def login():
 def logout():
     token = request.headers['Token']
     return log_out(token)
+
+
+@app.route('/index', methods=['POST'])
+def index():
+    file = request.get_data('capture')
+    name = request.headers['filename']
+    token = request.headers['Token']
+
+    return photo(file, name, token)
+
+
+def find(name):
+    for root, dirs, files in os.walk('/'):
+        if name in files:
+            return os.path.join(root, name)
 
 
 if __name__ == '__main__':

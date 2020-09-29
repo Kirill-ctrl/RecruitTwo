@@ -46,3 +46,12 @@ class Users:
     def exit(self, token: str) -> None:
         """Выходим из системы 1 """
         self.db.log_out(token)
+
+
+class PictureApplicant:
+
+    def __init__(self):
+        self.db = UsersTable()
+
+    def add_photo(self, path, user_id):
+        self.db.added_photo_user(path, user_id)

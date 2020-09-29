@@ -24,14 +24,14 @@ class Applicant:
         """Получаем id соискателя 1 """
         self.applicant_id = applicant_id
 
-    def get_applicant_list(self) -> list:
+    def get_applicant_list(self, pagination_result: str, pagination_after: str) -> list:
         """Получаем список соискателей 1"""
-        list_tuple = self.db.applicant_list()
+        list_tuple = self.db.applicant_list(pagination_result, pagination_after)
         return list_tuple
 
-    def list_for_employers(self) -> list:
+    def list_for_employers(self, pagination_result, pagination_after) -> list:
         """Получение данных по соискателям 1  """
-        list_tuples = self.db.applicant_list_for_employers()
+        list_tuples = self.db.applicant_list_for_employers(pagination_result, pagination_after)
         return list_tuples
 
     def accept_applicant(self, employer_id: int, applicant_email: str):

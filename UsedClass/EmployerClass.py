@@ -19,9 +19,9 @@ class Employer:
         self.status = status
         self.user_id = user_id
 
-    def get_employer_list(self) -> list:
+    def get_employer_list(self, pagination_result: str, pagination_after: str) -> list:
         """Получаем список работодателей 1 """
-        list_tuple = self.db.employer_list()
+        list_tuple = self.db.employer_list(pagination_result, pagination_after)
         return list_tuple
 
     def add_new_employer(self, name: str, city: str, users_id: int) -> None:

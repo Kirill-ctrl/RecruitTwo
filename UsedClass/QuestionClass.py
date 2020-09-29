@@ -12,9 +12,9 @@ class Question:
         """"""
         self.random_id = random_id
 
-    def choice_question(self) -> list:
+    def choice_question(self, pagination_result, pagination_after) -> list:
         """выбрать вопросы по определенному id 1 """
-        list_tuples = self.db.get_text_questions(self.random_id)
+        list_tuples = self.db.get_text_questions(self.random_id, pagination_result, pagination_after)
         return list_tuples
 
     def get_quest_text(self, id_questions: list) -> tuple:

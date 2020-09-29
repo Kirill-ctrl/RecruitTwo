@@ -1,4 +1,4 @@
-from DBClass.DataBaseClass import AnswerTable
+from DBClass.DataBaseClass import AnswerTable, CodeApplicantTable
 
 
 class Answer1:
@@ -21,15 +21,15 @@ class Answer1:
         """Получаем id соискателя 1 """
         self.applicant_id = applicant_id
 
-    def get_answer_list(self) -> list:
+    def get_answer_list(self, pagination_result, pagination_after) -> list:
         """Получаем ответы (текст ответа и id вопросов) соискателя 1 """
-        list_tuple = self.db.get_answer_list_applicants(self.applicant_id)
+        list_tuple = self.db.get_answer_list_applicants(self.applicant_id, pagination_result, pagination_after)
         return list_tuple
 
-    def check_answer_applicant(self, applicant_id: int) -> int:
+    def check_answer_applicant(self, applicant_id: int, code):
         """"""
-        count = self.db.check_answer_the_question(applicant_id)
-        return count
+        count_answer = self.db.check_answer_the_question(applicant_id, code)
+        return count_answer
 
     def check_cnt_question(self, question_id: int):
         cont = self.db.check_count_the_question_category(question_id)
@@ -47,3 +47,21 @@ class Answer1:
         """"""
         count = self.db.get_count_answer_applicant(applicant_id)
         return count
+
+
+class CodeApplicant:
+
+    def __init__(self):
+        self.db = CodeApplicantTable()
+        self.code = None
+
+    def check_answer_code(self, applicant_id):
+        list_tuple = self.db.check_answer_code_in_CodeApplicant(applicant_id)
+        print(list_tuple)
+        list_code_answer = []
+        for i in range(len(list_tuple)):
+            list_code_answer.append(list_tuple[i][0])
+        return list_code_answer
+
+    def insert_code_in_CodeApplicant(self, code, applicant_id):
+        self.db.add_code_in_code_applicant(code, applicant_id)

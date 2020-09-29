@@ -18,15 +18,15 @@ class DataBase:
 
 class ApplicantTable(DataBase):
 
-    def applicant_list(self) -> list:
+    def applicant_list(self, pagination_result: str, pagination_after: str) -> list:
         """Запрашивает всю информацию соискателей из БД"""
-        self.cur.execute(f"SELECT * FROM applicant ORDER BY id")
+        self.cur.execute(f"SELECT * FROM applicant ORDER BY id OFFSET {int(pagination_after)} LIMIT {int(pagination_result)}")
         list_tuple = self.cur.fetchall()
         return list_tuple
 
-    def applicant_list_for_employers(self) -> list:
+    def applicant_list_for_employers(self, pagination_result, pagination_after) -> list:
         """Получает информацию о соискателях для запроса /list"""
-        self.cur.execute("SELECT applicant_name, city, age, email, question_list_code FROM applicant WHERE accept = false ORDER BY id")
+        self.cur.execute(f"SELECT applicant_name, city, age, email, question_list_code FROM applicant WHERE accept = false ORDER BY id OFFSET {int(pagination_after)} LIMIT {int(pagination_result)}")
         list_tuples = self.cur.fetchall()
         return list_tuples
 
@@ -61,9 +61,9 @@ class ApplicantTable(DataBase):
 
 class EmployerTable(DataBase):
 
-    def employer_list(self) -> list:
+    def employer_list(self, pagination_result: str, pagination_after: str) -> list:
         """Выбирает всю информацию о работодателях"""
-        self.cur.execute("SELECT employer_name, city FROM employer ORDER BY id")
+        self.cur.execute(f"SELECT employer_name, city FROM employer ORDER BY id OFFSET {int(pagination_after)} LIMIT {int(pagination_result)}")
         list_tuple = self.cur.fetchall()
         return list_tuple
 
@@ -136,17 +136,19 @@ class TokenTable(DataBase):
 
 class AnswerTable(DataBase):
 
-    def get_answer_list_applicants(self, applicant_id: int) -> list:
+    def get_answer_list_applicants(self, applicant_id: int, pagination_result, pagination_after) -> list:
         """Выбирает id вопросов, текст ответов для /answer_list"""
-        self.cur.execute(f"SELECT id_quest, quest_text, text_answer FROM answer INNER JOIN question ON id = id_quest WHERE user_id = {applicant_id}")
+        self.cur.execute(
+            f"SELECT id_quest, quest_text, text_answer FROM answer INNER JOIN question ON id = id_quest WHERE user_id = {applicant_id} OFFSET {int(pagination_after)} LIMIT {int(pagination_result)}")
         list_tuple = self.cur.fetchall()
         return list_tuple
 
-    def check_answer_the_question(self, applicant_id: int) -> int:
+    def check_answer_the_question(self, applicant_id: int, code):
         """Проверяет сколько вопросов всего есть в этой категории"""
-        self.cur.execute(f"SELECT COUNT(user_id) FROM answer WHERE user_id = {applicant_id}")
-        count = self.cur.fetchone()[0]
-        return count
+        self.cur.execute(f"SELECT COUNT(user_id) FROM answer INNER JOIN question ON question.id = answer.id_quest INNER JOIN question_list ON question.question_list_id = question_list.id  "
+                         f"WHERE user_id = {applicant_id} AND question_list.code = {code}")
+        count_answer = self.cur.fetchone()[0]
+        return count_answer
 
     def check_count_the_question_category(self, question_id: int) -> int:
         """Проверяет сколько вопросов всего есть в этой категории"""
@@ -213,12 +215,16 @@ class UsersTable(DataBase):
         self.cur.execute(f"UPDATE token SET token_status = False WHERE token_text = '{token}'")
         self.conn.commit()
 
+    def added_photo_user(self, path, user_id):
+        self.cur.execute(f"INSERT INTO UserPicture(path, users_id) VALUES ('{path}', {user_id})")
+        self.conn.commit()
+
 
 class QuestionTable(DataBase):
 
-    def get_text_questions(self, random_id: int) -> list:
+    def get_text_questions(self, random_id: int, pagination_result, pagination_after) -> list:
         """Выбирает текст вопросов и псевдонимы по random_id"""
-        self.cur.execute(f"SELECT id, quest_text FROM question WHERE question_list_id = {random_id} ORDER BY id")
+        self.cur.execute(f"SELECT id, quest_text FROM question WHERE question_list_id = {random_id} ORDER BY id OFFSET {int(pagination_after)} LIMIT {int(pagination_result)}")
         list_tuples = self.cur.fetchall()
         return list_tuples
 
@@ -253,3 +259,15 @@ class QuestionListTable(DataBase):
         self.cur.execute(f"SELECT code FROM question_list WHERE id = {random_id}")
         list_tuple = self.cur.fetchone()
         return list_tuple
+
+
+class CodeApplicantTable(DataBase):
+
+    def add_code_in_code_applicant(self, code, applicant_id):
+        self.cur.execute(f"INSERT INTO CodeApplicants(code, applicant_id) VALUES ({code}, {applicant_id})")
+        self.conn.commit()
+
+    def check_answer_code_in_CodeApplicant(self, applicant_id):
+        self.cur.execute(f"SELECT code FROM CodeApplicants WHERE applicant_id = {applicant_id}")
+        code = self.cur.fetchall()
+        return code

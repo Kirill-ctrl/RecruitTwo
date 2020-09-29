@@ -1,7 +1,7 @@
 from UsedClass.ApplicantClass import Applicant
 from UsedClass.QuestionClass import Question
 from function.InformationApplicant import get_information_applicant
-from UsedClass.AnswerClass import Answer1
+from UsedClass.AnswerClass import Answer1, CodeApplicant
 from function.Information import get_status
 from function.Authentication import get_authorization
 from function.response import answers_already_added, not_authorized, access_denied, added
@@ -23,22 +23,20 @@ def insert_answer_applicant(answer_applicant: list, question_id, token, code):
                 applicant = Applicant()
                 applicant_id = applicant.get_applicant_id(token)
                 answer = Answer1()
-                count = answer.check_answer_applicant(applicant_id)
+                count_answer = answer.check_answer_applicant(applicant_id, code)
                 question = Question()
                 count_question = question.count_question_by_code(code)
-                if count >= count_question:
-                    answer.update_answer(answer_applicant, question_id)
-                    return answer_the_question_update()
-                else:
-                    applicant = Applicant()
-                    applicant_id = applicant.get_applicant_id(token)
+                if int(count_answer) < int(count_question):
                     applicant.update_category_applicants(code, applicant_id)
                     answer.insert_answer_question(applicant_id, answer_applicant, question_id)
-                    count = answer.count_answer_applicant(applicant_id)
-                    if count < 3:
-                        return answer_add_min_3()
-                    else:
-                        return succesfully_answer_added()
+                    applicant_new_code = CodeApplicant()
+                    list_code_answer = applicant_new_code.check_answer_code(applicant_id)
+                    if code not in list_code_answer:
+                        applicant_new_code.insert_code_in_CodeApplicant(code, applicant_id)
+                    return succesfully_answer_added()
+                elif int(count_answer) == int(count_question):
+                    answer.update_answer(answer_applicant, question_id)
+                    return answer_the_question_update()
             else:
                 return incorrect_id_qustion()
         else:

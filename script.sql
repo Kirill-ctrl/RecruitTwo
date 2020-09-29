@@ -6,7 +6,7 @@ CREATE TABLE question_list(
 CREATE TABLE question(
     id SERIAL PRIMARY KEY,
     quest_text TEXT NOT NULL,
-    question_list_id BIGINT REFERENCES question_list(id)
+    question_list_id BIGINT REFERENCES question_list(id),
     pseudonym varchar(64) NOT NULL
 );
 
@@ -48,7 +48,7 @@ CREATE TABLE users(
 	name text NOT NULL,
 	email text UNIQUE NOT NULL,
 	psw text NOT NULL,
-	status text NOT NULL,
+	status text NOT NULL
 );
 
 CREATE TABLE token(
@@ -58,7 +58,7 @@ CREATE TABLE token(
 	token_status boolean DEFAULT FALSE,
 	token_time timestamp,
 	save_temp date
-)
+);
 
 CREATE TABLE employer(
 	id SERIAL PRIMARY KEY,
@@ -75,7 +75,7 @@ CREATE TABLE applicant(
 	age INTEGER NOT NULL,
 	email text NOT NULL,
 	question_list_code SMALLINT REFERENCES question_list(code),
-	employer_id BIGINT REFERENCES employer(id)
+	employer_id BIGINT REFERENCES employer(id),
 	accept BOOL NOT NULL DEFAULT FALSE,
 	users_id INTEGER REFERENCES users(id)
 );
@@ -86,3 +86,17 @@ CREATE TABLE answer(
     text_answer text,
     id_quest INTEGER REFERENCES question(id)
 );
+
+
+CREATE TABLE CodeApplicant(
+    id SERIAL PRIMARY KEY,
+    code varchar(32),
+    applicant_id BIGINT REFERENCES applicant(id)
+);
+
+CREATE TABLE UserPicture(
+	id SERIAL PRIMARY KEY,
+	path varchar(128),
+	users_id BIGINT REFERENCES users(id)
+)
+

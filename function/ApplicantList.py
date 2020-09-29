@@ -25,7 +25,7 @@ def convert_applicant(list_tuple: list) -> list:
     return list_dict
 
 
-def get_inf_applicant(token: str, app) -> list or str:
+def get_inf_applicant(token: str, app, pagination_result: str, pagination_after: str) -> list or str:
     """Получаем информацию по соискателям"""
     if get_authorization(token):
         status = get_status(token)
@@ -33,9 +33,12 @@ def get_inf_applicant(token: str, app) -> list or str:
             return access_denied()
         else:
             job_seeker = Applicant()
-            list_tuple = job_seeker.get_applicant_list()
-            data = convert_applicant(list_tuple)
-            return information_output(app, data)
+            list_tuple = job_seeker.get_applicant_list(pagination_result, pagination_after)
+            if list_tuple:
+                data = convert_applicant(list_tuple)
+                return information_output(app, data)
+            else:
+                return "Page is not found"
     else:
         return not_authorized()
 
@@ -54,7 +57,7 @@ def convert_applicant_list_for_employer(list_tuples: list) -> list:
     return list_dicts
 
 
-def get_applicant_list_for_employer(token: str, app) -> list or str:
+def get_applicant_list_for_employer(token: str, app, pagination_result, pagination_after) -> list or str:
     """Получаем список соискателей для работодателей"""
     if get_authorization(token):
         status = get_status(token)
@@ -62,8 +65,11 @@ def get_applicant_list_for_employer(token: str, app) -> list or str:
             return access_denied()
         else:
             job_seeker = Applicant()
-            list_tuples = job_seeker.list_for_employers()
-            data = convert_applicant_list_for_employer(list_tuples)
-            return information_output(app, data)
+            list_tuples = job_seeker.list_for_employers(pagination_result, pagination_after)
+            if list_tuples:
+                data = convert_applicant_list_for_employer(list_tuples)
+                return information_output(app, data)
+            else:
+                return 'Page Not Found'
     else:
         return not_authorized()
