@@ -53,3 +53,7 @@ class Token:
     def delete_token(self, list_save_temp) -> None:
         """Удаляем просроченные токены 1 """
         self.db.remove_expired_tokens(list_save_temp)
+
+    def check_token_correct(self, token):
+        token = self.db.check_correct_token_users(token)
+        return token

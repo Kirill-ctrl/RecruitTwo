@@ -1,13 +1,12 @@
 from werkzeug.security import check_password_hash
 import jwt
-from flask import make_response, request
+from flask import request, make_response
 from function.Registration import save_tkn
 from datetime import *
 from UsedClass.UsersClass import Users
 from UsedClass.TokenClass import Token
-from function.response import try_again, token_verification_successful, successfully_logged_get_token, more_than_3_entered
-from flask import jsonify
-from function.response import *
+from function.response import try_again, token_verification_successful, incorrect_token, more_than_3_entered, successfully_logged_get_token, check_correct_please, mistake_create_token, incorrect_date
+from function.check_correct_token import check_token
 
 
 def auth(data: dict) -> str:
@@ -104,8 +103,11 @@ def first_token_authorization(email: str) -> str:
 
 def get_authorization(token: str) -> bool:
     """Получаем токен статус для проверки авторизации пользователя"""
-    user = Users()
-    email = user.get_email(token)
-    token_user = Token(email)
-    bool_value = token_user.get_bool_token_status(token)
-    return bool_value
+    if check_token(token):
+        user = Users()
+        email = user.get_email(token)
+        token_user = Token(email)
+        bool_value = token_user.get_bool_token_status(token)
+        return bool_value
+    else:
+        return incorrect_token()

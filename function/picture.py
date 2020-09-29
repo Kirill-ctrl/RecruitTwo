@@ -1,58 +1,47 @@
-from UsedClass.UsersClass import Users, PictureApplicant
+from UsedClass.UsersClass import Users, PictureUsers
 import os
-from function.response import added
+from function.check_correct_token import check_token
+from function.response import incorrect_token, incorrect_mimetype
 
 
-def photo(file, name, token):
-    user = Users()
-    email = user.get_email(token)
-    user_id = user.get_id_users(email)
-
-    content = search_content_type(file)
-
-    y = dict(content_type=content[20:24], name=name)
-
-    picture = PictureApplicant()
-
-    if y['content_type'] == 'jpeg':
-        path, pathjpg = get_good_filename_to_jpg(content, name)
-
-        if path:
-            picture.add_photo(path, user_id)
-
-        elif pathjpg:
-            picture.add_photo(pathjpg, user_id)
-
+def photo(file, token):
+    if check_token(token):
+        user = Users()
+        email = user.get_email(token)
+        user_id = user.get_id_users(email)
+        picture = PictureUsers()
+        if file.content_type == 'image/png':
+            naming = f"image_user_{user_id}.png"
+            path = f'C:/users/kpech/photousers/{naming}'
+            file.save(f'C:/users/kpech/photousers/{naming}')
+            return picture.add_photo(path, user_id)
+        elif file.content_type == 'image/jpeg':
+            naming = f"image_user_{user_id}.jpg"
+            path = f'C:/users/kpech/photousers/{naming}'
+            file.save(f'C:/users/kpech/photousers/{naming}')
+            return picture.add_photo(path, user_id)
     else:
-        path = get_good_filename_to_png(content, name)
-        picture.add_photo(path, user_id)
-
-    return added()
+        return incorrect_token()
 
 
 def find(name):
-    for root, dirs, files in os.walk('/'):
+    path = 'C:/users/kpech/photousers/'
+    for root, dirs, files in os.walk(path):
         if name in files:
             return os.path.join(root, name)
 
 
-def search_content_type(file):
-    ContentType = 'Content-Type'.encode('utf-8')
-    a = file.find(ContentType)
-    content = file[a: a + 24].decode('utf-8')
-    return content
-
-
-def get_good_filename_to_jpg(content, name):
-    y = dict(content_type=content[20:24], name=name)
-    filename = f"{name}.{y['content_type']}"
-    filenamejpg = f"{name}.jpg"
-    path = find(filename)
-    pathjpg = find(filenamejpg)
-    return path, pathjpg
-
-def get_good_filename_to_png(content, name):
-    y = dict(content_type=content[20:23], name=name)
-    filename = f"{name}.{y['content_type']}"
-    path = find(filename)
-    return path
+def get_picture(token):
+    if check_token(token):
+        picture = PictureUsers()
+        path = picture.get_path_picture(token)
+        if 'jpeg' in path or 'jpg' in path:
+            mimetype = 'image/jpeg'
+            return path, mimetype
+        elif 'png' in path:
+            mimetype = 'image/png'
+            return path, mimetype
+        else:
+            return incorrect_mimetype()
+    else:
+        return incorrect_token()

@@ -52,7 +52,7 @@ def data_added_save_token(token: str) -> str:
 
 
 def try_again() -> str:
-    response = make_response(jsonify({"Code": 426, "text_response": "Upgrade Required", "add information" : "check data"}), 426)
+    response = make_response(jsonify({"Code": 426, "text_response": "Upgrade Required", "add information": "check data"}), 426)
     return response
 
 
@@ -112,4 +112,18 @@ def incorrect_date():
 
 def mistake_create_token():
     response = make_response(jsonify({"Code": 500, "text_response": "Internal Server Error", "additional_information": "Token creation error"}), 500)
+    return response
+
+
+def incorrect_token():
+    response = make_response({"code": 404, "text_response": "Incorrect Token"})
+    return response
+
+
+def incorrect_mimetype():
+    response = make_response({"code": 404, "text_response": "Incorrect Mimetype"})
+    return response
+
+def page_is_not_found():
+    response = make_response({"code": 404, "text_response": "Page is not found"})
     return response

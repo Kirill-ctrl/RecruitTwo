@@ -133,6 +133,10 @@ class TokenTable(DataBase):
                 self.cur.execute(f"DELETE FROM token WHERE save_temp = '{list_save_temp[i]}'")
                 self.conn.commit()
 
+    def check_correct_token_users(self, token):
+        self.cur.execute(f"SELECT COUNT(token_text) FROM token WHERE token_text = '{token}'")
+        token = self.cur.fetchone()[0]
+        return token
 
 class AnswerTable(DataBase):
 
@@ -216,8 +220,17 @@ class UsersTable(DataBase):
         self.conn.commit()
 
     def added_photo_user(self, path, user_id):
-        self.cur.execute(f"INSERT INTO UserPicture(path, users_id) VALUES ('{path}', {user_id})")
-        self.conn.commit()
+        try:
+            self.cur.execute(f"INSERT INTO UserPicture(path, users_id) VALUES ('{path}', {user_id})")
+            self.conn.commit()
+            return 'added'
+        except:
+            return 'already except'
+
+    def get_path_picture_by_token(self, token):
+        self.cur.execute(f"SELECT path FROM UserPicture INNER JOIN token ON token.user_id = UserPicture.users_id WHERE token_text = '{token}'")
+        path = self.cur.fetchone()[0]
+        return path
 
 
 class QuestionTable(DataBase):

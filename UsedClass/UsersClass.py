@@ -48,10 +48,15 @@ class Users:
         self.db.log_out(token)
 
 
-class PictureApplicant:
+class PictureUsers:
 
     def __init__(self):
         self.db = UsersTable()
 
     def add_photo(self, path, user_id):
-        self.db.added_photo_user(path, user_id)
+        answer = self.db.added_photo_user(path, user_id)
+        return answer
+
+    def get_path_picture(self, token):
+        path = self.db.get_path_picture_by_token(token)
+        return path

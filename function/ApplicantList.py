@@ -1,11 +1,10 @@
 from UsedClass.ApplicantClass import Applicant
-# import json
 from function.Information import get_status
 from function.Authentication import get_authorization
-from function.response import access_denied, not_authorized
+from function.response import access_denied, not_authorized, incorrect_token, page_is_not_found
 from function.get_check_status import check_status_applicant
-from flask import Flask
 from function.output import information_output
+from function.check_correct_token import check_token
 
 
 def convert_applicant(list_tuple: list) -> list:
@@ -27,20 +26,23 @@ def convert_applicant(list_tuple: list) -> list:
 
 def get_inf_applicant(token: str, app, pagination_result: str, pagination_after: str) -> list or str:
     """Получаем информацию по соискателям"""
-    if get_authorization(token):
-        status = get_status(token)
-        if check_status_applicant(status):
-            return access_denied()
-        else:
-            job_seeker = Applicant()
-            list_tuple = job_seeker.get_applicant_list(pagination_result, pagination_after)
-            if list_tuple:
-                data = convert_applicant(list_tuple)
-                return information_output(app, data)
+    if check_token(token):
+        if get_authorization(token):
+            status = get_status(token)
+            if check_status_applicant(status):
+                return access_denied()
             else:
-                return "Page is not found"
+                job_seeker = Applicant()
+                list_tuple = job_seeker.get_applicant_list(pagination_result, pagination_after)
+                if list_tuple:
+                    data = convert_applicant(list_tuple)
+                    return information_output(app, data)
+                else:
+                    return page_is_not_found()
+        else:
+            return not_authorized()
     else:
-        return not_authorized()
+        return incorrect_token()
 
 
 def convert_applicant_list_for_employer(list_tuples: list) -> list:
@@ -59,17 +61,20 @@ def convert_applicant_list_for_employer(list_tuples: list) -> list:
 
 def get_applicant_list_for_employer(token: str, app, pagination_result, pagination_after) -> list or str:
     """Получаем список соискателей для работодателей"""
-    if get_authorization(token):
-        status = get_status(token)
-        if check_status_applicant(status):
-            return access_denied()
-        else:
-            job_seeker = Applicant()
-            list_tuples = job_seeker.list_for_employers(pagination_result, pagination_after)
-            if list_tuples:
-                data = convert_applicant_list_for_employer(list_tuples)
-                return information_output(app, data)
+    if check_token(token):
+        if get_authorization(token):
+            status = get_status(token)
+            if check_status_applicant(status):
+                return access_denied()
             else:
-                return 'Page Not Found'
+                job_seeker = Applicant()
+                list_tuples = job_seeker.list_for_employers(pagination_result, pagination_after)
+                if list_tuples:
+                    data = convert_applicant_list_for_employer(list_tuples)
+                    return information_output(app, data)
+                else:
+                    return page_is_not_found()
+        else:
+            return not_authorized()
     else:
-        return not_authorized()
+        return incorrect_token()
