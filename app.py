@@ -63,7 +63,7 @@ def get_list():
 @app.route('/answer_list')
 def answer_list():
     token = request.headers.get('Token')
-    email = request.headers.get('Token')
+    email = request.headers.get('Email')
     pagination_result = request.args.get('pagination_result')
     pagination_after = request.args.get('pagination_after')
     return get_list_answer_applicant(token, email, app, pagination_result, pagination_after)

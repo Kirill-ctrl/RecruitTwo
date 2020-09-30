@@ -1,4 +1,5 @@
 import psycopg2
+import json
 
 
 class DataBase:
@@ -223,9 +224,9 @@ class UsersTable(DataBase):
         try:
             self.cur.execute(f"INSERT INTO UserPicture(path, users_id) VALUES ('{path}', {user_id})")
             self.conn.commit()
-            return 'added'
+            return json.dumps('added')
         except:
-            return 'already except'
+            return json.dumps('already except')
 
     def get_path_picture_by_token(self, token):
         self.cur.execute(f"SELECT path FROM UserPicture INNER JOIN token ON token.user_id = UserPicture.users_id WHERE token_text = '{token}'")
