@@ -1,18 +1,25 @@
 from flask import Flask, request, send_file
-from function.ApplicantList import get_inf_applicant, get_applicant_list_for_employer
-from function.EmployerList import get_inf_employer
+from flask_mail import Mail
+import function.ApplicantList
+import function.EmployerList
 from function.QuestionAll import get_questions
 from function.AnswerAll import insert_answer_applicant
 from function.AnswerListApplicant import get_list_answer_applicant
 from function.AcceptOnWork import accept_applicant
-from function.Registration import sign_up
-from function.Authentication import auth
+import function.Registration
+import function.Authentication
 from function.LogOut import log_out
 from UsedClass.Validate import ValidateRegistration, ValidateAuthorization, ValidateAnswerApplicant
 from marshmallow import ValidationError
 from function.picture import photo, get_picture
+from config import Config_Mail
+
 
 app = Flask(__name__)
+
+app.config.from_object(Config_Mail)
+
+mail = Mail(app)
 
 
 @app.route('/applicant')
@@ -20,7 +27,7 @@ def applicant():
     token = request.headers.get('Token')
     pagination_result = request.args.get('pagination_result')
     pagination_after = request.args.get('pagination_after')
-    return get_inf_applicant(token, app, pagination_result, pagination_after)
+    return function.ApplicantList.get_inf_applicant(token, app, pagination_result, pagination_after)
 
 
 @app.route('/employer')
@@ -28,7 +35,7 @@ def employer():
     token = request.headers.get('Token')
     pagination_result = request.args.get('pagination_result')
     pagination_after = request.args.get('pagination_after')
-    return get_inf_employer(token, app, pagination_result, pagination_after)
+    return function.EmployerList.get_inf_employer(token, app, pagination_result, pagination_after)
 
 
 @app.route('/quest')
@@ -57,7 +64,7 @@ def get_list():
     token = request.headers.get('Token')
     pagination_result = request.args.get('pagination_result')
     pagination_after = request.args.get('pagination_after')
-    return get_applicant_list_for_employer(token, app, pagination_result, pagination_after)
+    return function.ApplicantList.get_applicant_list_for_employer(token, app, pagination_result, pagination_after)
 
 
 @app.route('/answer_list')
@@ -82,7 +89,7 @@ def register():
     data = request.json
     try:
         result = ValidateRegistration().load(data)
-        return sign_up(data)
+        return function.Registration.sign_up(data)
     except ValidationError as err:
         return err.messages
 
@@ -92,7 +99,7 @@ def login():
     data = request.json
     try:
         result = ValidateAuthorization().load(data)
-        return auth(data)
+        return function.Authentication.auth(data)
     except ValidationError as err:
         return err.messages
 
@@ -104,7 +111,7 @@ def logout():
 
 
 @app.route('/save_photo', methods=['POST'])
-def index():
+def save_photo():
     file = request.files.get('capture')
     token = request.headers.get('Token')
     return photo(file, token)
@@ -118,6 +125,13 @@ def get_photo():
         return send_file(path, mimetype=mimetype)
     except:
         return get_picture(token)
+
+
+@app.route('/confirmation', methods=["POST"])
+def conf():
+    get_code = request.form.get("code")
+    token = request.headers.get("Token")
+    return function.Registration.confirmation(get_code, token)
 
 
 if __name__ == '__main__':

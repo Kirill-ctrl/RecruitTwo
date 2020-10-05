@@ -1,6 +1,6 @@
 from UsedClass.ApplicantClass import Applicant
 from function.Information import get_status
-from function.Authentication import get_authorization
+import function.Authentication
 from function.response import access_denied, not_authorized, incorrect_token, page_is_not_found
 from function.get_check_status import check_status_applicant
 from function.output import information_output
@@ -27,7 +27,7 @@ def convert_applicant(list_tuple: list) -> list:
 def get_inf_applicant(token: str, app, pagination_result: str, pagination_after: str) -> list or str:
     """Получаем информацию по соискателям"""
     if check_token(token):
-        if get_authorization(token):
+        if function.Authentication.get_authorization(token):
             status = get_status(token)
             if check_status_applicant(status):
                 return access_denied()
@@ -59,10 +59,10 @@ def convert_applicant_list_for_employer(list_tuples: list) -> list:
     return list_dicts
 
 
-def get_applicant_list_for_employer(token: str, app, pagination_result, pagination_after) -> list or str:
+def get_applicant_list_for_employer(token: str, app, pagination_result: str, pagination_after: str) -> list or str:
     """Получаем список соискателей для работодателей"""
     if check_token(token):
-        if get_authorization(token):
+        if function.Authentication.get_authorization(token):
             status = get_status(token)
             if check_status_applicant(status):
                 return access_denied()

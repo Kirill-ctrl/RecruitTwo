@@ -50,10 +50,10 @@ class Token:
         bool_value = self.db.get_bool_value_token_status(token)
         return bool_value
 
-    def delete_token(self, list_save_temp) -> None:
+    def delete_token(self, list_save_temp: list) -> None:
         """Удаляем просроченные токены 1 """
         self.db.remove_expired_tokens(list_save_temp)
 
-    def check_token_correct(self, token):
+    def check_token_correct(self, token: str):
         token = self.db.check_correct_token_users(token)
         return token

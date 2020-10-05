@@ -1,8 +1,8 @@
 from UsedClass.AnswerClass import Answer1
 from UsedClass.ApplicantClass import Applicant
 from function.Information import get_status
-from function.Authentication import get_authorization
-from function.response import access_denied, not_authorized, incorrect_token
+import function.Authentication
+from function.response import access_denied, not_authorized, incorrect_token, page_is_not_found
 from function.get_check_status import check_status_applicant
 from function.output import information_output
 from function.check_correct_token import check_token
@@ -18,10 +18,10 @@ def sort_ans_list(list_tuple) -> list:
     return list_dict
 
 
-def get_list_answer_applicant(token: str, email: str, app, pagination_result, pagination_after) -> list or str:
+def get_list_answer_applicant(token: str, email: str, app, pagination_result: str, pagination_after: str) -> list or str:
     """Получаем список ответов соискателя"""
     if check_token(token):
-        if get_authorization(token):
+        if function.Authentication.get_authorization(token):
             status = get_status(token)
             if check_status_applicant(status):
                 return access_denied()
@@ -38,7 +38,7 @@ def get_list_answer_applicant(token: str, email: str, app, pagination_result, pa
                     data = sort_ans_list(list_tuple)
                     return information_output(app, data)
                 else:
-                    return "Page Not Found"
+                    return page_is_not_found()
         else:
             return not_authorized()
     else:

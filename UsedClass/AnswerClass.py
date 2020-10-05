@@ -21,17 +21,17 @@ class Answer1:
         """Получаем id соискателя 1 """
         self.applicant_id = applicant_id
 
-    def get_answer_list(self, pagination_result, pagination_after) -> list:
+    def get_answer_list(self, pagination_result: str, pagination_after: str) -> list:
         """Получаем ответы (текст ответа и id вопросов) соискателя 1 """
         list_tuple = self.db.get_answer_list_applicants(self.applicant_id, pagination_result, pagination_after)
         return list_tuple
 
-    def check_answer_applicant(self, applicant_id: int, code):
+    def check_answer_applicant(self, applicant_id: int, code: int) -> int:
         """"""
         count_answer = self.db.check_answer_the_question(applicant_id, code)
         return count_answer
 
-    def check_cnt_question(self, question_id: int):
+    def check_cnt_question(self, question_id: int) -> int:
         cont = self.db.check_count_the_question_category(question_id)
         return cont
 
@@ -55,7 +55,7 @@ class CodeApplicant:
         self.db = CodeApplicantTable()
         self.code = None
 
-    def check_answer_code(self, applicant_id):
+    def check_answer_code(self, applicant_id: int):
         list_tuple = self.db.check_answer_code_in_CodeApplicant(applicant_id)
         print(list_tuple)
         list_code_answer = []
@@ -63,5 +63,5 @@ class CodeApplicant:
             list_code_answer.append(list_tuple[i][0])
         return list_code_answer
 
-    def insert_code_in_CodeApplicant(self, code, applicant_id):
+    def insert_code_in_CodeApplicant(self, code: int, applicant_id: int):
         self.db.add_code_in_code_applicant(code, applicant_id)

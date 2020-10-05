@@ -1,6 +1,6 @@
 from UsedClass.EmployerClass import Employer
 from function.Information import get_status
-from function.Authentication import get_authorization
+import function.Authentication
 from function.response import not_authorized, access_denied, incorrect_token, page_is_not_found
 from function.get_check_status import check_status_applicant
 from function.output import information_output
@@ -16,7 +16,7 @@ def convert_employer(list_tuple: list) -> list:
 def get_inf_employer(token: str, app, pagination_result: str, pagination_after: str) -> list or str:
     """Получаем список работодателей"""
     if check_token(token):
-        if get_authorization(token):
+        if function.Authentication.get_authorization(token):
             status = get_status(token)
             if check_status_applicant(status):
                 list_tuple = Employer().get_employer_list(pagination_result, pagination_after)

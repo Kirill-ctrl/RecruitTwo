@@ -4,7 +4,7 @@ from function.check_correct_token import check_token
 from function.response import incorrect_token, incorrect_mimetype
 
 
-def photo(file, token):
+def photo(file, token: str):
     if check_token(token):
         user = Users()
         email = user.get_email(token)
@@ -24,14 +24,14 @@ def photo(file, token):
         return incorrect_token()
 
 
-def find(name):
+def find(name: str):
     path = 'C:/users/kpech/photousers/'
     for root, dirs, files in os.walk(path):
         if name in files:
             return os.path.join(root, name)
 
 
-def get_picture(token):
+def get_picture(token: str):
     if check_token(token):
         picture = PictureUsers()
         path = picture.get_path_picture(token)

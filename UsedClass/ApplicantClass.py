@@ -29,7 +29,7 @@ class Applicant:
         list_tuple = self.db.applicant_list(pagination_result, pagination_after)
         return list_tuple
 
-    def list_for_employers(self, pagination_result, pagination_after) -> list:
+    def list_for_employers(self, pagination_result: str, pagination_after: str) -> list:
         """Получение данных по соискателям 1  """
         list_tuples = self.db.applicant_list_for_employers(pagination_result, pagination_after)
         return list_tuples

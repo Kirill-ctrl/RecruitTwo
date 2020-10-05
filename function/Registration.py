@@ -3,10 +3,13 @@ import jwt
 from flask import make_response
 from UsedClass.ApplicantClass import Applicant
 from UsedClass.EmployerClass import Employer
-from UsedClass.UsersClass import Users
+from UsedClass.UsersClass import Users, Temp_code
 from UsedClass.TokenClass import Token
 from datetime import *
-from function.response import incorrect_filling, data_added_save_token, email_already_exists
+from function.response import incorrect_filling, data_added_save_token, email_already_exists, update_confirmation, try_again_check_code
+import app
+from flask_mail import Message
+from random import randint
 
 
 def create_token(email: str, status: str) -> str:
@@ -34,6 +37,21 @@ def save_tkn(token: str, email: str) -> None:
     customer_token.insert_token(token, user_id, time_now)
 
 
+def confirm(email: str) -> None:
+    msg = Message("Hello",
+                  sender="testmailflask1@gmail.com",
+                  recipients=[f"{email}"])
+    code = randint(100000, 1000000)
+    msg.body = f"Ваш код подтверждения: {code}"
+
+    user = Users()
+    user_id = user.get_id_users(email)
+    temp_code = Temp_code()
+    temp_code.add_code(user_id, code)
+
+    app.mail.send(msg)
+
+
 def sign_up(data: dict) -> str:
     """Регистрация пользователя"""
     name = data['name']
@@ -56,9 +74,28 @@ def sign_up(data: dict) -> str:
         response = make_response()
         response.headers['Token'] = token
         tkn = response.headers['Token']
+
+        confirm(email)
+
         response = make_response(data_added_save_token(tkn), 200)
         del response.headers['Token']
         save_tkn(tkn, email)
         return response
     else:
         return incorrect_filling()
+
+
+def confirmation(get_code: str, token: str) -> str:
+    get_code = int(get_code)
+    user = Users()
+    email = user.get_email(token)
+    user_id = user.get_id_users(email)
+
+    temp_code = Temp_code()
+    code = temp_code.select_code(user_id)
+    if code == get_code:
+        user.update_confirm_user(user_id)
+        temp_code.delete_code(code)
+        return update_confirmation()
+    else:
+        return try_again_check_code()

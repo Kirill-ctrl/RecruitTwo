@@ -1,18 +1,16 @@
 import psycopg2
 import json
+from config import Config_DB
 
 
 class DataBase:
-    DB_NAME = 'Recruit'
-    USER_NAME = 'postgres'
-    PASSWORD = 'k197908'
 
     def __init__(self):
         self.conn, self.cur = self.connecting()
 
     def connecting(self) -> tuple:
         """Подключаемся к БД"""
-        with psycopg2.connect(f"dbname={self.DB_NAME} user={self.USER_NAME} password='{self.PASSWORD}'") as conn:
+        with psycopg2.connect(f"dbname={Config_DB.DB_NAME} user={Config_DB.USER_NAME} password='{Config_DB.PASSWORD}'") as conn:
             cur = conn.cursor()
         return conn, cur
 
@@ -25,7 +23,7 @@ class ApplicantTable(DataBase):
         list_tuple = self.cur.fetchall()
         return list_tuple
 
-    def applicant_list_for_employers(self, pagination_result, pagination_after) -> list:
+    def applicant_list_for_employers(self, pagination_result: str, pagination_after: str) -> list:
         """Получает информацию о соискателях для запроса /list"""
         self.cur.execute(f"SELECT applicant_name, city, age, email, question_list_code FROM applicant WHERE accept = false ORDER BY id OFFSET {int(pagination_after)} LIMIT {int(pagination_result)}")
         list_tuples = self.cur.fetchall()
@@ -134,21 +132,22 @@ class TokenTable(DataBase):
                 self.cur.execute(f"DELETE FROM token WHERE save_temp = '{list_save_temp[i]}'")
                 self.conn.commit()
 
-    def check_correct_token_users(self, token):
+    def check_correct_token_users(self, token: str) -> str:
         self.cur.execute(f"SELECT COUNT(token_text) FROM token WHERE token_text = '{token}'")
         token = self.cur.fetchone()[0]
         return token
 
+
 class AnswerTable(DataBase):
 
-    def get_answer_list_applicants(self, applicant_id: int, pagination_result, pagination_after) -> list:
+    def get_answer_list_applicants(self, applicant_id: int, pagination_result: str, pagination_after: str) -> list:
         """Выбирает id вопросов, текст ответов для /answer_list"""
         self.cur.execute(
             f"SELECT id_quest, quest_text, text_answer FROM answer INNER JOIN question ON id = id_quest WHERE user_id = {applicant_id} OFFSET {int(pagination_after)} LIMIT {int(pagination_result)}")
         list_tuple = self.cur.fetchall()
         return list_tuple
 
-    def check_answer_the_question(self, applicant_id: int, code):
+    def check_answer_the_question(self, applicant_id: int, code: int) -> int:
         """Проверяет сколько вопросов всего есть в этой категории"""
         self.cur.execute(f"SELECT COUNT(user_id) FROM answer INNER JOIN question ON question.id = answer.id_quest INNER JOIN question_list ON question.question_list_id = question_list.id  "
                          f"WHERE user_id = {applicant_id} AND question_list.code = {code}")
@@ -220,7 +219,7 @@ class UsersTable(DataBase):
         self.cur.execute(f"UPDATE token SET token_status = False WHERE token_text = '{token}'")
         self.conn.commit()
 
-    def added_photo_user(self, path, user_id):
+    def added_photo_user(self, path: str, user_id: int):
         try:
             self.cur.execute(f"INSERT INTO UserPicture(path, users_id) VALUES ('{path}', {user_id})")
             self.conn.commit()
@@ -228,15 +227,32 @@ class UsersTable(DataBase):
         except:
             return json.dumps('already except')
 
-    def get_path_picture_by_token(self, token):
+    def get_path_picture_by_token(self, token: str) -> str:
         self.cur.execute(f"SELECT path FROM UserPicture INNER JOIN token ON token.user_id = UserPicture.users_id WHERE token_text = '{token}'")
         path = self.cur.fetchone()[0]
         return path
 
+    def add_code_for_confirmation(self, user_id: int, code: int) -> None:
+        self.cur.execute(f"INSERT INTO temp_code VALUES ({user_id}, {code})")
+        self.conn.commit()
+
+    def select_code_by_user_id(self, user_id: int) -> int:
+        self.cur.execute(f"SELECT code FROM temp_code WHERE user_id = {user_id}")
+        code = self.cur.fetchone()[0]
+        return code
+
+    def update_confirmation_user(self, user_id: int) -> None:
+        self.cur.execute(f"UPDATE users SET confirmation_email = True WHERE id = {user_id}")
+        self.conn.commit()
+
+    def delete_code_from_temp_code(self, code: int) -> None:
+        self.cur.execute(f"DELETE FROM temp_code WHERE code = {code}")
+        self.conn.commit()
+
 
 class QuestionTable(DataBase):
 
-    def get_text_questions(self, random_id: int, pagination_result, pagination_after) -> list:
+    def get_text_questions(self, random_id: int, pagination_result: str, pagination_after: str) -> list:
         """Выбирает текст вопросов и псевдонимы по random_id"""
         self.cur.execute(f"SELECT id, quest_text FROM question WHERE question_list_id = {random_id} ORDER BY id OFFSET {int(pagination_after)} LIMIT {int(pagination_result)}")
         list_tuples = self.cur.fetchall()
@@ -277,11 +293,11 @@ class QuestionListTable(DataBase):
 
 class CodeApplicantTable(DataBase):
 
-    def add_code_in_code_applicant(self, code, applicant_id):
+    def add_code_in_code_applicant(self, code: int, applicant_id: int):
         self.cur.execute(f"INSERT INTO CodeApplicants(code, applicant_id) VALUES ({code}, {applicant_id})")
         self.conn.commit()
 
-    def check_answer_code_in_CodeApplicant(self, applicant_id):
+    def check_answer_code_in_CodeApplicant(self, applicant_id: int):
         self.cur.execute(f"SELECT code FROM CodeApplicants WHERE applicant_id = {applicant_id}")
         code = self.cur.fetchall()
         return code

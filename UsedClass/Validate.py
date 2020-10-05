@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields, post_load, validate
+from marshmallow import Schema, fields, validate
 
 
 class ValidateRegistration(Schema):

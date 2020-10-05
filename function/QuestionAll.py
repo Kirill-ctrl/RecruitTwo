@@ -1,6 +1,6 @@
 from UsedClass.QuestionClass import Question, QuestionList
 from function.Information import get_status
-from function.Authentication import get_authorization
+import function.Authentication
 from function.response import not_authorized, access_denied, incorrect_token, page_is_not_found
 from function.get_check_status import check_status_applicant
 from function.output import information_output
@@ -21,7 +21,7 @@ def convert_dict(code: int, list_id_text_questions: list):
 def get_questions(token: str, app, pagination_result, pagination_after) -> list or str:
     """Получаем случайные вопросы"""
     if check_token(token):
-        if get_authorization(token):
+        if function.Authentication.get_authorization(token):
             status = get_status(token)
             if check_status_applicant(status):
                 question = Question()

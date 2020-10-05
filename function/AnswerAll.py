@@ -2,16 +2,16 @@ from UsedClass.ApplicantClass import Applicant
 from UsedClass.QuestionClass import Question
 from UsedClass.AnswerClass import Answer1, CodeApplicant
 from function.Information import get_status
-from function.Authentication import get_authorization
+import function.Authentication
 from function.get_check_status import check_status_applicant
 from function.response import succesfully_answer_added, incorrect_id_qustion, answer_the_question_update, not_authorized, access_denied, incorrect_token
 from function.check_correct_token import check_token
 
 
-def insert_answer_applicant(answer_applicant: list, question_id, token, code):
+def insert_answer_applicant(answer_applicant: list, question_id: int, token: str, code: int):
     """Добавляем ответы соискателя"""
     if check_token(token):
-        if get_authorization(token):
+        if function.Authentication.get_authorization(token):
             status = get_status(token)
             if check_status_applicant(status):
                 question = Question()

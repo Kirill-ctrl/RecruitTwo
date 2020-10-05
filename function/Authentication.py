@@ -1,7 +1,7 @@
 from werkzeug.security import check_password_hash
 import jwt
 from flask import request, make_response
-from function.Registration import save_tkn
+import function.Registration
 from datetime import *
 from UsedClass.UsersClass import Users
 from UsedClass.TokenClass import Token
@@ -86,7 +86,7 @@ def get_new_token(email: str) -> str:
     response.headers['Token'] = new_token
     new_token = response.headers['Token']
     del response.headers['Token']
-    save_tkn(new_token, email)
+    function.Registration.save_tkn(new_token, email)
     time_now = datetime.now()
     token.update_status_token(time_now)
     return successfully_logged_get_token(new_token)

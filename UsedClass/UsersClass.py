@@ -47,16 +47,35 @@ class Users:
         """Выходим из системы 1 """
         self.db.log_out(token)
 
+    def update_confirm_user(self, user_id: int):
+        self.db.update_confirmation_user(user_id)
+
 
 class PictureUsers:
 
     def __init__(self):
         self.db = UsersTable()
 
-    def add_photo(self, path, user_id):
+    def add_photo(self, path, user_id: int):
         answer = self.db.added_photo_user(path, user_id)
         return answer
 
-    def get_path_picture(self, token):
+    def get_path_picture(self, token: str):
         path = self.db.get_path_picture_by_token(token)
         return path
+
+
+class Temp_code:
+
+    def __init__(self):
+        self.db = UsersTable()
+
+    def add_code(self, user_id: int, code: int):
+        self.db.add_code_for_confirmation(user_id, code)
+
+    def select_code(self, user_id: int):
+        code = self.db.select_code_by_user_id(user_id)
+        return code
+
+    def delete_code(self, code: int):
+        self.db.delete_code_from_temp_code(code)

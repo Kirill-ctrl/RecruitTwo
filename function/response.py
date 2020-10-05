@@ -124,6 +124,17 @@ def incorrect_mimetype():
     response = make_response({"code": 404, "text_response": "Incorrect Mimetype"})
     return response
 
+
 def page_is_not_found():
     response = make_response({"code": 404, "text_response": "Page is not found"})
+    return response
+
+
+def update_confirmation():
+    response = make_response(jsonify({"Code": 200, "text_response": "OK"}), 200)
+    return response
+
+
+def try_again_check_code():
+    response = make_response(jsonify({"Code": 426, "text_response": "Upgrade Required", "add information": "check code and token"}, 426))
     return response
